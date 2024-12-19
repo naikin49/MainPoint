@@ -8,18 +8,29 @@ from nlp_ask import ask_ollama
 from text_analysis import analyze_text_with_bert
 from transformers import pipeline
 from DB import DB
+import pyodbc
 
 class Telegram:
     def __init__(self):
+        self.db_flag = False
         try:
             self.db = DB()
+            self.db_flag = True
         except ValueError:
             print('Ошибка работы с sql: ' + str(ValueError))
+        except pyodbc.Error as e:
+            print('Не удалось подключиться к SQL серверу')
+        except:
+            print('Ошибка в БД')
 
         load_dotenv(os.path.dirname(os.path.abspath(__file__)) + '\\config.env')
         Telegram_Token = os.getenv("Telegram_Token")
 
         self.VOICE_DIR = os.path.dirname(os.path.abspath(__file__))  + '\\VOICE'
+
+        if not os.path.exists(self.VOICE_DIR ):
+            os.makedirs(self.VOICE_DIR )        
+            
         self.bert_classifier = pipeline("sentiment-analysis")
 
 
@@ -52,11 +63,13 @@ class Telegram:
         bert_ans = analyze_text_with_bert(nlp_ans, self.bert_classifier)
 
         db_ans =''
-        try:
-            db_ans = self.db.Record_Add(f"voice_{update.message.message_id}.wav", self.VOICE_DIR+'\\', bert_ans[0]['label'] == 'POSITIVE', bert_ans[0]['score'], audio_ans, nlp_ans, telegram_id)
-        except:
-            db_ans = 'Не удалось связаться с БД.'
-
+        if self.db_flag:
+            try:
+                db_ans = self.db.Record_Add(f"voice_{update.message.message_id}.wav", self.VOICE_DIR+'\\', bert_ans[0]['label'] == 'POSITIVE', bert_ans[0]['score'], audio_ans, nlp_ans, telegram_id)
+            except:
+                db_ans = 'Не удалось связаться с БД.'
+        else:
+            db_ans ='Не удалось подключиться к SQL серверу'
 
         try:
             if os.path.exists(ogg_path):
@@ -69,8 +82,7 @@ class Telegram:
         except:
             pass
 
-        # Ответ пользователю
-        await update.message.reply_text('audio_ans: ' + audio_ans + ' \n\nnlp_ans: ' + nlp_ans + ' \n\nbert_ans: ' + bert_ans[0]['label'] + ' score= ' + str(bert_ans[0]['score']) + '\n\ndb_ans: ' + db_ans)
+        await update.message.reply_text('Речь: ' + audio_ans + ' \n\nОтвет от блока nlp: ' + nlp_ans + ' \n\nОтвет от Bert: ' + bert_ans[0]['label'] + ' score= ' + str(bert_ans[0]['score']) + '\n\nОтвет от БД: ' + db_ans)
         
 
 
