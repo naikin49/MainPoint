@@ -62,11 +62,11 @@
 2. **Запустите SQL запросы**:
    - Импортируйте таблицы:
      ```sql
-     :r schema.sql
+     source schema.sql
      ```
    - Добавьте хранимые процедуры:
      ```sql
-     :r procedures.sql
+     source procedures.sql
      ```
 
 3. **Подключите свое приложение**:
