@@ -12,25 +12,25 @@
 
 ---
 
-## SQL Server Configuration
+## Конфигурация SQL Server
 
-1. **Install Microsoft SQL Server 2022**:
+1. **Установите Microsoft SQL Server 2022**:
    - Скачайте и установите SQL Server 2022 с официального сайта Microsoft.
 
-2. **Enable Mixed Mode Authentication**:
+2. **Выберите Mixed Mode Authentication**:
    - Во время установки выберите режим **Mixed Mode Authentication** (SQL Server и Windows Authentication).
    - Установите пароль для учетной записи `sa` (суперпользователя SQL Server).
 
-3. **Enable TCP/IP Connections**:
+3. **Выберите TCP/IP Connections**:
    - Откройте **SQL Server Configuration Manager**.
    - Перейдите в раздел `SQL Server Network Configuration > Protocols for MSSQLSERVER`.
    - Включите протокол **TCP/IP**.
    - Перезапустите службу SQL Server.
 
-4. **Allow Firewall Access**:
+4. **Добавьте доступ в Firewall**:
    - Убедитесь, что порт **1433** (по умолчанию для SQL Server) открыт в вашем брандмауэре.
 
-5. **Create a New Login**:
+5. **Создайте новый логин**:
    - В SQL Server Management Studio создайте нового пользователя:
      ```sql
      CREATE LOGIN my_user WITH PASSWORD = 'my_secure_password';
@@ -44,14 +44,14 @@
 
 ---
 
-## Files in This Folder
+## Файлы в данной директории
 
 - `schema.sql`: Содержит схему базы данных (скрипты создания таблиц).
 - `.\Stored Procedures`: Содержит скрипты создания хранимых процедур.
 
-## Setup Instructions
+## Инструкции по установке
 
-1. **Create and Configure the Database**:
+1. **Создайте и настройте базу данных**:
    - Запустите SQL Server Management Studio (SSMS).
    - Создайте базу данных:
      ```sql
@@ -59,7 +59,7 @@
      USE my_database;
      ```
 
-2. **Run SQL Scripts**:
+2. **Запустите SQL запросы**:
    - Импортируйте таблицы:
      ```sql
      :r schema.sql
@@ -69,7 +69,7 @@
      :r procedures.sql
      ```
 
-3. **Connect Your Application**:
+3. **Подключите свое приложение**:
    - Настройте подключение в вашем приложении с помощью строки подключения:
      ```
      DRIVER={ODBC Driver 17 for SQL Server};
@@ -80,7 +80,7 @@
      ```
 ---
 
-## Notes
+## Примечания
 - Убедитесь, что порт **1433** доступен для вашего приложения.
 - Если SQL Server работает локально, используйте `localhost` в строке подключения.
 - Для удаленного подключения используйте IP-адрес или доменное имя сервера.
