@@ -1,5 +1,4 @@
 import pyodbc
-import pandas as pd
 from dotenv import load_dotenv
 import os
 
@@ -10,28 +9,26 @@ class DB:
 
         self.Server_name = os.getenv("Server_name")
         self.DB_name = os.getenv("DB_Name")
+        self.DB_user_name = os.getenv("DB_user_name")
+        self.DB_user_password = os.getenv("DB_user_password")
 
-        connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={self.Server_name};DATABASE={self.DB_name};Trusted_Connection=yes;'
+        connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={self.Server_name};DATABASE={self.DB_name};UID={self.DB_user_name};PWD={self.DB_user_password};TrustServerCertificate=yes;'
         self.conn = pyodbc.connect(connection_string)
         self.cursor = self.conn.cursor()
    
-    def Add(self, file_name, file_path, is_poss, score, full_text, main_text):
+    def Record_Add(self, file_name, file_path, is_poss, score, full_text, main_text, tg_id):
         with open(file_path+file_name, "rb") as file:
             file_data = file.read()
 
         try:
-            query = "exec Add ?, ?, ?, ?, ?"
-            self.cursor.execute(query, (pyodbc.Binary(file_data), is_poss, score, full_text, main_text))
+            query = "exec Record_Add ?, ?, ?, ?, ?, ?, ?"
+            self.cursor.execute(query, (pyodbc.Binary(file_data), file_name, is_poss, score, full_text, main_text, tg_id))
             self.conn.commit()
-            return 0
-        except:
-            return 1
-
-#db = DB()
-#s = db.User_name_from_Telegram('123123')
-#print(s)
-#print(10*'-')
-#print(s['user_name'][0])
+            return 'Сообщение было сохранено в базе данных'
+        except pyodbc.DatabaseError as e:
+            return str(e)
+        except ValueError:
+            return str(ValueError)
 
 
 
